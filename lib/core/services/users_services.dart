@@ -6,12 +6,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class UsersServices {
   final baseUrl = dotenv.env['API_URL'];
 
-  // Future<Map<String, dynamic>> fetchUsers() async {
-  //   try{
-  //     final response = await http
-  //   }
-  // }
-
   //Aqui estoy ingresando un nuevo usuario
   Future<Map<String, dynamic>> insertUser(Map<String, dynamic> data) async {
     try {

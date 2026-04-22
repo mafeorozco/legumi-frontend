@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+// Todos los colores de la app en un solo lugar
 class AppColors {
   static const green900 = Color(0xFF173404);
   static const green800 = Color(0xFF27500A);
+  static const green700 = Color(0xFF2F5F0E);
   static const green600 = Color(0xFF3B6D11);
   static const green400 = Color(0xFF639922);
-  static const green200 = Color(0xFF97C459); 
+  static const green300 = Color(0xFF7DB33A);
+  static const green200 = Color(0xFF97C459);
   static const green100 = Color(0xFFC0DD97);
-  static const green50  = Color(0xFFEAF3DE);
+  static const green50 = Color(0xFFEAF3DE);
   static const background = Color(0xFFF7F9F4);
   static const surface = Color(0xFFFFFFFF);
   static const border = Color(0xFFE8EDE4);
@@ -38,14 +41,9 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.green600,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 14),
-        textStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -63,14 +61,8 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.green600, width: 1.5),
       ),
-      labelStyle: const TextStyle(
-        color: AppColors.textSecondary,
-        fontSize: 13,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
+      labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     ),
   );
 }
