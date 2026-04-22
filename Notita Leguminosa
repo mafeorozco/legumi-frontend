@@ -1,0 +1,6 @@
+!No tocar, si no, no funciona nada!
+.dart_tool
+pubspec.yaml
+
+Si aparece error solo corran el proyecto para que cree las otras carpetas
+El resto de archivos son generados por el sistema, algunos se pueden borrar/editar, pero no es recomendable.
