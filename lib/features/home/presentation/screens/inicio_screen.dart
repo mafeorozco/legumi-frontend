@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:legumi/core/services/auth_service.dart';
 import 'package:legumi/core/services/greenhouses_services.dart';
 import 'package:legumi/core/theme/app_theme.dart';
+import 'package:legumi/features/analyses/AnalysePest.dart';
 import 'package:legumi/features/auth/login.dart';
 import 'package:legumi/features/greenhouses/greenhouses.dart';
 import 'package:legumi/shared/widgets/menu_inferior.dart';
@@ -122,7 +123,8 @@ class _InicioScreenState extends State<InicioScreen> {
                   _SidebarItem(
                     icon: Icons.camera_alt_outlined,
                     label: 'Escanear planta',
-                    onTap: () {},
+                    onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const AnalysePestScreen())),
                   ),
                   _SidebarItem(
                     icon: Icons.home_work_outlined,

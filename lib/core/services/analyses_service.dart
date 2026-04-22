@@ -18,17 +18,17 @@ class AnalysesService {
   // SUBIR IMAGEN (multipart — no JSON)
 
   Future<Map<String, dynamic>> createAnalysis({
-    required int  greenhouseId,
+    // required int  greenhouseId,
     required File imageFile,
   }) async {
     final token = await _storage.read(key: 'access_token');
 
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('$_baseUrl/api/v1/analyses/'),
+      Uri.parse('$_baseUrl/detections/predict'),
     )
       ..headers['Authorization'] = 'Bearer $token'
-      ..fields['greenhouse_id']  = greenhouseId.toString()
+      // ..fields['greenhouse_id']  = greenhouseId.toString()
       ..files.add(await http.MultipartFile.fromPath(
         'image',
         imageFile.path,

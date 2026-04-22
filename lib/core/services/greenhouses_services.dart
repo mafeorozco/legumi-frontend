@@ -1,11 +1,30 @@
 import 'api_client.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GreenhousesService {
   final _client = ApiClient();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
+  String get _baseUrl => dotenv.env['API_URL'] ?? '';
 
   // Mis invernaderos (admin + operario)
   Future<List<Map<String, dynamic>>> fetchMyGreenhouses() async {
-    final data = await _client.get('/greenhouses/my');
+    final token = await _storage.read(key: 'access_token');
+
+    final request = http.MultipartRequest(
+      'GET',
+      Uri.parse('$_baseUrl/greenhouses/my'),
+    )..headers['Authorization'] = 'Bearer $token';
+
+  final streamed  = await request.send();
+    final response  = await http.Response.fromStream(streamed);
+    final data      = jsonDecode(utf8.decode(response.bodyBytes));
+
     return List<Map<String, dynamic>>.from(data);
   }
 
@@ -18,14 +37,13 @@ class GreenhousesService {
   // Crear invernadero — solo admin
   Future<Map<String, dynamic>> createGreenhouse({
     required String name,
-    required int    rows,
-    required int    columns,
+    required int rows,
+    required int columns,
   }) async {
-    final data = await _client.post('/greenhouses/', body: {
-      'name'   : name,
-      'rows'   : rows,
-      'columns': columns,
-    });
+    final data = await _client.post(
+      '/greenhouses/',
+      body: {'name': name, 'rows': rows, 'columns': columns},
+    );
     return Map<String, dynamic>.from(data);
   }
 
@@ -33,12 +51,12 @@ class GreenhousesService {
   Future<Map<String, dynamic>> updateGreenhouse(
     int id, {
     String? name,
-    int?    rows,
-    int?    columns,
+    int? rows,
+    int? columns,
   }) async {
     final body = <String, dynamic>{};
-    if (name    != null) body['name']    = name;
-    if (rows    != null) body['rows']    = rows;
+    if (name != null) body['name'] = name;
+    if (rows != null) body['rows'] = rows;
     if (columns != null) body['columns'] = columns;
 
     final data = await _client.put('/greenhouses/$id', body: body);
@@ -52,8 +70,10 @@ class GreenhousesService {
 
   // Escanear QR → vincularse como operario
   Future<Map<String, dynamic>> scanQR(String qrCode) async {
-    final data = await _client.post('/greenhouses/scan-qr',
-      body: {'qr_code': qrCode});
+    final data = await _client.post(
+      '/greenhouses/scan-qr',
+      body: {'qr_code': qrCode},
+    );
     return Map<String, dynamic>.from(data);
   }
 }

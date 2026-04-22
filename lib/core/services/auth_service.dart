@@ -52,7 +52,7 @@ class AuthService {
     try {
       // OAuth2 requiere form-encoded, no JSON
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/auth/login'),
+        Uri.parse('$_baseUrl/auth/login'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'username': email, 'password': password},
       );

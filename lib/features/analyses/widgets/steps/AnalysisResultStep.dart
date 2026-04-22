@@ -4,12 +4,14 @@ import 'package:legumi/core/services/analyses_service.dart';
 
 class SendAnalysisStep extends StatefulWidget {
   final String imagePath;
-  final int greenhouseId;
+  final VoidCallback? onSuccess;
+  // final int greenhouseId;
 
   const SendAnalysisStep({
     super.key,
     required this.imagePath,
-    required this.greenhouseId,
+    this.onSuccess
+    // required this.greenhouseId,
   });
 
   @override
@@ -37,9 +39,12 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
       _errorMessage = null;
     });
 
+    await Future.delayed(const Duration(seconds: 1));
+    widget.onSuccess?.call();
+
     try {
       final result = await _service.createAnalysis(
-        greenhouseId: widget.greenhouseId,
+        // greenhouseId: widget.greenhouseId,
         imageFile: File(widget.imagePath),
       );
 
@@ -48,6 +53,8 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
         _isSuccess = true;
         _result = result;
       });
+
+
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -115,68 +122,7 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Imagen enviada
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.file(
-              File(widget.imagePath),
-              width: double.infinity,
-              height: 180,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Resultado de la API
-          // Container(
-          //   width: double.infinity,
-          //   padding: const EdgeInsets.all(16),
-          //   decoration: BoxDecoration(
-          //     color: const Color(0xFFF4FAF0),
-          //     border: Border.all(color: const Color(0xFF3D7A2A)),
-          //     borderRadius: BorderRadius.circular(12),
-          //   ),
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       const Row(
-          //         children: [
-          //           Icon(
-          //             Icons.check_circle,
-          //             color: Color(0xFF3D7A2A),
-          //             size: 20,
-          //           ),
-          //           SizedBox(width: 8),
-          //           Text(
-          //             'Análisis completado',
-          //             style: TextStyle(
-          //               fontWeight: FontWeight.w600,
-          //               color: Color(0xFF3D7A2A),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //       const Divider(height: 20),
-
-          //       // Muestra los campos que devuelva tu API
-          //       // Ajusta las keys según tu respuesta real
-          //       if (_result!['plaga'] != null)
-          //         _ResultRow(
-          //           label: 'Plaga detectada',
-          //           value: _result!['plaga'],
-          //         ),
-          //       if (_result!['confianza'] != null)
-          //         _ResultRow(
-          //           label: 'Confianza',
-          //           value: '${_result!['confianza']}%',
-          //         ),
-          //       if (_result!['recomendacion'] != null)
-          //         _ResultRow(
-          //           label: 'Recomendación',
-          //           value: _result!['recomendacion'],
-          //         ),
-          //     ],
-          //   ),
-          // ),
+          Text("Se ha detectado una plaga"),
         ],
       );
     }
@@ -184,37 +130,3 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
     return const SizedBox.shrink();
   }
 }
-
-// ── Widget helper para filas del resultado ──
-// class _ResultRow extends StatelessWidget {
-//   final String label;
-//   final String value;
-
-//   const _ResultRow({required this.label, required this.value});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 8),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Text(
-//             '$label: ',
-//             style: const TextStyle(
-//               fontSize: 13,
-//               fontWeight: FontWeight.w600,
-//               color: Color(0xFF1A1A1A),
-//             ),
-//           ),
-//           Expanded(
-//             child: Text(
-//               value,
-//               style: const TextStyle(fontSize: 13, color: Color(0xFF444444)),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
