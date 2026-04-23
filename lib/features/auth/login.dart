@@ -98,11 +98,13 @@ class _LoginPageState extends State<LoginPage> {
                       color: const Color(0xFFADD1A5),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
-                      Icons.eco_rounded,
-                      color: Colors.white,
-                      size: 38,
-                    ),
+                    child: Padding(
+              padding: const EdgeInsets.all(10), // ← aumenta este valor para hacerla más pequeña
+              child: Image.asset(
+                'assets/images/logo_legumi.png',
+                fit: BoxFit.contain,
+              ),
+            ),
                   ),
                   const SizedBox(height: 14),
                   const Text(
@@ -338,6 +340,14 @@ class _LoginPageState extends State<LoginPage> {
     height: 50,
     child: ElevatedButton(
       onPressed: _loading ? null : _login,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF16372C),  // ← color del botón
+        foregroundColor: Color(0xFFADD1A5),              // ← color del texto e ícono
+        disabledBackgroundColor: const Color(0xFF16372C).withOpacity(0.5), // ← cuando está deshabilitado
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),  // ← bordes redondeados
+        ),
+      ),
       child: _loading
           ? const SizedBox(
               height: 20,

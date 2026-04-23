@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildTopBar() {
     return Container(
       height: 58,
-      color: AppColors.green800,
+      color: Color(0xFF16372C),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [

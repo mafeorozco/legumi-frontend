@@ -12,6 +12,8 @@ class MenuInferior extends StatelessWidget {
     required this.onTap,
   });
 
+
+
   @override
   Widget build(BuildContext context) {
     // Solo se muestra en móvil — en escritorio el sidebar reemplaza este menú
@@ -30,7 +32,7 @@ class MenuInferior extends StatelessWidget {
           onTap: onTap,
           type: BottomNavigationBarType.fixed,
           backgroundColor: AppColors.surface,
-          selectedItemColor: AppColors.green600,
+          selectedItemColor: Color(0xFF16372C),
           unselectedItemColor: AppColors.textSecondary,
           selectedFontSize: 11,
           unselectedFontSize: 11,

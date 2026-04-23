@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:legumi/features/historyAnalyses/models/analysis_model.dart';
 import 'api_client.dart';
 
 class AnalysesService {
@@ -53,44 +54,39 @@ class AnalysesService {
     int greenhouseId,
   ) async {
     final token = await _storage.read(key: 'access_token');
-    final bodyMap = {
-  'greenhouse_id': greenhouseId,
-  'locations': locations,
-};
+    final bodyMap = {'greenhouse_id': greenhouseId, 'locations': locations};
 
-print('Body enviado: ${jsonEncode(bodyMap)}'); // ← verifica en consola
+    print('Body enviado: ${jsonEncode(bodyMap)}'); // ← verifica en consola
 
-final response = await http.post(
-  Uri.parse('$_baseUrl/analyses/results/$resultId/locations'),
-  headers: {
-    'Authorization': 'Bearer $token',
-    'Content-Type': 'application/json',
-  },
-  body: jsonEncode(bodyMap),
-);
+    final response = await http.post(
+      Uri.parse('$_baseUrl/analyses/results/$resultId/locations'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(bodyMap),
+    );
 
-print('Status: ${response.statusCode}');
-print('Response: ${response.body}');
-
-    final data      = jsonDecode(utf8.decode(response.bodyBytes));
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
 
     return List<Map<String, dynamic>>.from(data);
-
-    // final data = await _client.post(
-    //   '/analyses/results/$resultId/locations',
-    //   body: {
-    //     'locations': locations, 
-    //     'greenhouse_id':greenhouseId
-    //   },
-    // );
-    // return List.from(data);
   }
 
   // HISTORIAL — mis análisis
 
-  Future<List<Map<String, dynamic>>> fetchMyAnalyses() async {
-    final data = await _client.get('/analyses/my');
-    return List<Map<String, dynamic>>.from(data);
+  Future<List<AnalysisModel>> fetchMyAnalyses() async {
+    final token = await _storage.read(key: 'access_token');
+
+    final response = await http.get(
+      Uri.parse('$_baseUrl/analyses/my'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    final List data = jsonDecode(response.body); // o como lo tengas
+    return data.map((e) => AnalysisModel.fromJson(e)).toList();
+    // return List<Map<String, dynamic>>.from(data);
   }
 
   // HISTORIAL — por invernadero

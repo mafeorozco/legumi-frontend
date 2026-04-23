@@ -5,6 +5,8 @@ import 'package:legumi/core/theme/app_theme.dart';
 import 'package:legumi/features/analyses/AnalysePest.dart';
 import 'package:legumi/features/auth/login.dart';
 import 'package:legumi/features/greenhouses/greenhouses.dart';
+import 'package:legumi/features/greenhouses/screens/GreenhouseScreen.dart';
+import 'package:legumi/features/historyAnalyses/screens/HistoryAnalysesScreen.dart';
 import 'package:legumi/shared/widgets/menu_inferior.dart';
 import 'package:legumi/features/profile/profile_page.dart';
 
@@ -59,18 +61,30 @@ class _InicioScreenState extends State<InicioScreen> {
 
   // Maneja la navegación — invernaderos abre nueva pantalla
   void _navigate(int index) {
-    if (index == 2) {
-      Navigator.push(
+    if (index == _activeIndex) return; // ya estás aquí, no hagas nada
+
+    if (index == 0) {
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const GreenhousesPage()),
+        MaterialPageRoute(builder: (_) => const InicioScreen()),
       );
-      return;
-    }else if(index == 1){
+    } else if (index == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AnalysePestScreen()),
       );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GreenhousesScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const HistoryAnalysesScreen()),
+      );
     }
+
     setState(() => _activeIndex = index);
   }
 
@@ -129,7 +143,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 58,
-      color: AppColors.green800,
+      color: Color(0xFF16372C),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
@@ -137,10 +151,17 @@ class _TopBar extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: AppColors.green600,
+              color: Color(0xFFADD1A5),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.eco_rounded, color: Colors.white, size: 16),
+            // child: const Icon(Icons.eco_rounded, color: Colors.white, size: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(4), // ← aumenta este valor para hacerla más pequeña
+              child: Image.asset(
+                'assets/images/logo_legumi.png',
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           const Text(
@@ -167,11 +188,11 @@ class _TopBar extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 14,
-              backgroundColor: AppColors.green600,
+              backgroundColor: Color(0xFFADD1A5),
               child: Text(
                 userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF16372C),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -565,7 +586,7 @@ class _Banner extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppColors.green900, AppColors.green700],
+          colors: [Color(0xFF16372C), Color.fromARGB(255, 63, 100, 89)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -580,7 +601,7 @@ class _Banner extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        '¡Hola, $userName! 👋',
+        '¡Hola, $userName!',
         style: const TextStyle(
           color: AppColors.green100,
           fontSize: 13,

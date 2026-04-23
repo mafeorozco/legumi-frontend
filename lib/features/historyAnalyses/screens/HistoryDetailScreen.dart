@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:legumi/features/analyses/models/analysis_result.dart';
 import 'package:legumi/features/analyses/models/detected_pest.dart';
 import 'package:legumi/features/analyses/models/green_house_selection.dart';
 import 'package:legumi/features/analyses/models/grid_position.dart';
+import 'package:legumi/features/analyses/screens/AnalysisResultScreen.dart';
+import 'package:legumi/features/historyAnalyses/models/analysis_model.dart';
+import 'package:legumi/features/historyAnalyses/models/analysis_result_model.dart';
 
-class AnalysisResultScreen extends StatefulWidget {
-  final AnalysisResult result;
-  final GreenhouseSelection greenhouse;
-  final List<GridPosition> selectedPositions;
+class HistoryDetailScreen extends StatefulWidget {
+  final AnalysisModel analysis;
 
-  const AnalysisResultScreen({
-    super.key,
-    required this.result,
-    required this.greenhouse,
-    required this.selectedPositions,
-  });
+  const HistoryDetailScreen({super.key, required this.analysis});
 
   @override
-  State<AnalysisResultScreen> createState() => _AnalysisResultScreenState();
+  State<HistoryDetailScreen> createState() => _HistoryDetailScreenState();
 }
 
-class _AnalysisResultScreenState extends State<AnalysisResultScreen>
+class _HistoryDetailScreenState extends State<HistoryDetailScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -30,35 +25,19 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
-
-    // La imagen viene desde la izquierda
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _slideImageAnimation = Tween<Offset>(
       begin: const Offset(-0.3, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
-
-    // El texto viene desde la derecha
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _slideTextAnimation = Tween<Offset>(
       begin: const Offset(0.3, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
-
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
   }
 
@@ -68,26 +47,44 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
     super.dispose();
   }
 
+  // ── Conversores ────────────────────────────────────────────────────────────
+
+  GreenhouseSelection get _greenhouse => GreenhouseSelection(
+        id:      widget.analysis.greenhouse?.id ?? 0,
+        name:    widget.analysis.greenhouse?.name ?? 'Sin invernadero',
+        rows:    widget.analysis.greenhouse?.rows ?? 0,
+        columns: widget.analysis.greenhouse?.columns ?? 0,
+      );
+
+  List<GridPosition> get _selectedPositions {
+    final positions = <GridPosition>[];
+    for (final result in widget.analysis.results) {
+      for (final loc in result.plantLocations) {
+        positions.add(GridPosition(row: loc.row, column: loc.column));
+      }
+    }
+    return positions;
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final mainPest = widget.result.detectedPests.isNotEmpty
-        ? widget.result.detectedPests.first
+    final mainResult = widget.analysis.results.isNotEmpty
+        ? widget.analysis.results.first
         : null;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Hero con animación
+          // ── Hero ────────────────────────────────────────────────────────
           SizedBox(
             height: 200,
             width: double.infinity,
             child: Stack(
               children: [
-                // Fondo verde oscuro
                 Container(color: const Color(0xFF1B3A2D)),
-
-                // Semicírculo verde claro
                 Positioned(
                   left: -120,
                   top: 0,
@@ -100,8 +97,6 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
                     ),
                   ),
                 ),
-
-                // Imagen con fade + slide desde la izquierda
                 Positioned(
                   left: -10,
                   top: 30,
@@ -121,8 +116,6 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
                     ),
                   ),
                 ),
-
-                // Texto con fade + slide desde la derecha
                 Positioned(
                   right: 0,
                   top: 0,
@@ -142,13 +135,11 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
                             const Text(
                               'resultado del analisis:',
                               style: TextStyle(
-                                color: Color(0xFFADD1A5),
-                                fontSize: 12,
-                              ),
+                                  color: Color(0xFFADD1A5), fontSize: 12),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              mainPest?.pest.name.toUpperCase() ??
+                              mainResult?.pest?.name.toUpperCase() ??
                                   'SIN RESULTADO',
                               style: const TextStyle(
                                 color: Color(0xFFADD1A5),
@@ -167,7 +158,7 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
             ),
           ),
 
-          // Contenido con esquinas redondeadas
+          // ── Contenido ───────────────────────────────────────────────────
           Expanded(
             child: Transform.translate(
               offset: const Offset(0, -24),
@@ -186,33 +177,43 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
                         const Text(
                           'Detalle del analisis',
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
+                              fontSize: 20, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 20),
 
-                        _SectionLabel(label: 'Fecha'),
-                        Text(widget.result.dateTimeCreate.split('T').first),
+                        // Fecha
+                        const _SectionLabel(label: 'Fecha'),
+                        Text(
+                          widget.analysis.dateTimeCreate
+                                  ?.toIso8601String()
+                                  .split('T')
+                                  .first ??
+                              'Sin fecha',
+                        ),
                         const SizedBox(height: 16),
 
-                        _SectionLabel(label: 'Plagas detectadas'),
-                        ...widget.result.detectedPests
-                            .where((d) => d.pest.id != 11)
-                            .map((d) => _PestCard(detectedPest: d)),
+                        // Plagas detectadas
+                        const _SectionLabel(label: 'Plagas detectadas'),
+                        ...widget.analysis.results
+                        .where((d) => d.pest?.id != 11)
+                        .map(
+                          (r) => _ResultCard(result: r),
+                        ),
                         const SizedBox(height: 16),
 
-                        if (mainPest != null) ...[
-                          _SectionLabel(label: 'Descripcion'),
-                          Text(mainPest.pest.descripcion),
+                        // Descripción
+                        if (mainResult?.pest?.descripcion != null) ...[
+                          const _SectionLabel(label: 'Descripcion'),
+                          Text(mainResult!.pest!.descripcion!),
                           const SizedBox(height: 16),
                         ],
 
-                        _SectionLabel(label: 'Zonas afectadas'),
+                        // Zonas afectadas
+                        const _SectionLabel(label: 'Zonas afectadas'),
                         const SizedBox(height: 8),
                         _GridPreview(
-                          greenhouse: widget.greenhouse,
-                          selectedPositions: widget.selectedPositions,
+                          greenhouse: _greenhouse,
+                          selectedPositions: _selectedPositions,
                         ),
                         const SizedBox(height: 32),
                       ],
@@ -223,14 +224,13 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
             ),
           ),
 
-          // Botón
+          // ── Botón ───────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.of(context).popUntil((r) => r.isFirst),
+                onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2D5016),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -239,11 +239,9 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
                   ),
                 ),
                 child: const Text(
-                  'VOLVER AL INICIO',
+                  'VOLVER',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+                      color: Colors.white, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -253,6 +251,8 @@ class _AnalysisResultScreenState extends State<AnalysisResultScreen>
     );
   }
 }
+
+// ── Widgets internos ──────────────────────────────────────────────────────────
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -274,29 +274,23 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-class _PestCard extends StatelessWidget {
-  final DetectedPest detectedPest;
-  const _PestCard({required this.detectedPest});
+class _ResultCard extends StatelessWidget {
+  final AnalysisResultModel result;
+  const _ResultCard({required this.result});
 
   Color get _severityColor {
-    switch (detectedPest.severity) {
-      case 'alta':
-        return Colors.red.shade100;
-      case 'media':
-        return Colors.orange.shade100;
-      default:
-        return Colors.green.shade100;
+    switch (result.severity.toLowerCase()) {
+      case 'alta':   return Colors.red.shade100;
+      case 'media':  return Colors.orange.shade100;
+      default:       return Colors.green.shade100;
     }
   }
 
   Color get _severityTextColor {
-    switch (detectedPest.severity) {
-      case 'alta':
-        return Colors.red.shade800;
-      case 'media':
-        return Colors.orange.shade800;
-      default:
-        return Colors.green.shade800;
+    switch (result.severity.toLowerCase()) {
+      case 'alta':   return Colors.red.shade800;
+      case 'media':  return Colors.orange.shade800;
+      default:       return Colors.green.shade800;
     }
   }
 
@@ -312,18 +306,9 @@ class _PestCard extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  detectedPest.pest.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  detectedPest.pest.clasification.name,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
+            child: Text(
+              result.pest?.name ?? 'Sin plaga',
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           Container(
@@ -333,7 +318,7 @@ class _PestCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'Severidad: ${detectedPest.severity}',
+              'Severidad: ${result.severity}',
               style: TextStyle(
                 fontSize: 12,
                 color: _severityTextColor,
@@ -357,57 +342,49 @@ class _GridPreview extends StatelessWidget {
   });
 
   @override
-Widget build(BuildContext context) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Nombre del invernadero
-      Row(
-        children: [
-          const Icon(
-            Icons.house_outlined,
-            size: 16,
-            color: Color.fromARGB(255, 27, 27, 27),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            greenhouse.name,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color.fromARGB(255, 27, 27, 27),
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.house_outlined, size: 16,
+                color: Color.fromARGB(255, 27, 27, 27)),
+            const SizedBox(width: 6),
+            Text(
+              greenhouse.name,
+              style: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w500,
+                  color: Color.fromARGB(255, 27, 27, 27)),
             ),
-          ),
-        ],
-      ),
-
-      // Grid
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: greenhouse.columns,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
+          ],
         ),
-        itemCount: greenhouse.rows * greenhouse.columns,
-        itemBuilder: (context, index) {
-          final row = index ~/ greenhouse.columns;
-          final col = index % greenhouse.columns;
-          final isSelected = selectedPositions.contains(
-            GridPosition(row: row, column: col),
-          );
-          return Container(
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFF1B3A2D)
-                  : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(6),
-            ),
-          );
-        },
-      ),
-    ],
-  );
-}
+        const SizedBox(height: 8),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: greenhouse.columns,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+          ),
+          itemCount: greenhouse.rows * greenhouse.columns,
+          itemBuilder: (context, index) {
+            final row = index ~/ greenhouse.columns;
+            final col = index % greenhouse.columns;
+            final isSelected = selectedPositions
+                .contains(GridPosition(row: row, column: col));
+            return Container(
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF1B3A2D)
+                    : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
 }

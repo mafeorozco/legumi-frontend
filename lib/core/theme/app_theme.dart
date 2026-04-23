@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Todos los colores de la app en un solo lugar
 class AppColors {
@@ -37,6 +38,7 @@ class AppTheme {
         color: AppColors.textPrimary,
       ),
     ),
+    textTheme: GoogleFonts.nunitoTextTheme(),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.green600,

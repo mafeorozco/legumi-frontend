@@ -28,6 +28,10 @@ dependencies:
 
   shared_preferences: ^2.1.1
 
+  google_fonts: ^6.2.1
+
+  material_symbols_icons: ^4.2815.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,3 +48,5 @@ flutter:
     - assets/images/cancel.png
     - assets/images/atras.png
     - assets/images/img_hero.png
+    - assets/images/hero_result.png
+    - assets/images/logo_legumi.png

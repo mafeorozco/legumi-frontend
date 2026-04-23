@@ -142,7 +142,7 @@ class AuthService {
       if (token == null) return null;
 
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/auth/me'),
+        Uri.parse('$_baseUrl/auth/me'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

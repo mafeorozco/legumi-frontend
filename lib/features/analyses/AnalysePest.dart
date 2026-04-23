@@ -13,6 +13,10 @@ import 'package:legumi/features/analyses/widgets/steps/AnalysisResultStep.dart';
 import 'package:legumi/features/analyses/widgets/steps/GridGreenhouseStep.dart';
 import 'package:legumi/features/analyses/widgets/steps/SaveImageStep.dart';
 import 'package:legumi/features/analyses/widgets/steps/SelectedGreenHouseStep.dart';
+import 'package:legumi/features/greenhouses/screens/GreenhouseScreen.dart';
+import 'package:legumi/features/historyAnalyses/screens/HistoryAnalysesScreen.dart';
+import 'package:legumi/features/home/presentation/screens/inicio_screen.dart';
+import 'package:legumi/shared/widgets/menu_inferior.dart';
 
 class AnalysePestScreen extends StatefulWidget {
   const AnalysePestScreen({super.key});
@@ -22,12 +26,42 @@ class AnalysePestScreen extends StatefulWidget {
 }
 
 class _AnalysePestScreenState extends State<AnalysePestScreen> {
+  int _activeIndex = 1;
   int _currentStep = 0;
   GreenhouseSelection? selectedGreenhouse;
   List<GridPosition> selectedPositions = [];
   AnalysisResult? _analysisResult;
   String? _imagePath;
   final _analysesService = AnalysesService();
+
+  void _navigate(int index) {
+    if (index == _activeIndex) return; // ya estás aquí, no hagas nada
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioScreen()),
+      );
+    } else if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AnalysePestScreen()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GreenhousesScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const HistoryAnalysesScreen()),
+      );
+    }
+
+    setState(() => _activeIndex = index);
+  }
+
 
   List<DetectPestStep> get _steps => [
     DetectPestStep(
@@ -144,6 +178,10 @@ class _AnalysePestScreenState extends State<AnalysePestScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      bottomNavigationBar: MenuInferior(
+        currentIndex: _activeIndex,
+        onTap: _navigate,
+      ),
       body: Stack(
         children: [
           // 1. Hero de fondo

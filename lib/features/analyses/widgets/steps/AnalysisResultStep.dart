@@ -64,20 +64,24 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
   Widget build(BuildContext context) {
     // ── Cargando ──────────────────────────────
     if (_isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Column(
-          children: [
-            CircularProgressIndicator(color: Color(0xFF3D7A2A)),
-            SizedBox(height: 16),
-            Text(
-              'Analizando imagen...',
-              style: TextStyle(fontSize: 14, color: Color(0xFF888888)),
-            ),
-          ],
-        ),
-      );
-    }
+  return const Center(
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: Color(0xFF16372C)),
+          SizedBox(height: 16),
+          Text(
+            'Analizando imagen...',
+            style: TextStyle(fontSize: 14, color: Color(0xFF888888)),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
     // ── Error ─────────────────────────────────
     if (_errorMessage != null) {
@@ -119,7 +123,7 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Imagen enviada
-          Text("Se ha detectado una plaga"),
+          Text(""),
         ],
       );
     }

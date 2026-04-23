@@ -6,6 +6,7 @@ import 'core/services/auth_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/login.dart';
 import 'features/home/presentation/screens/inicio_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
