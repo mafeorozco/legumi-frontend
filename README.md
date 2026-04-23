@@ -5,24 +5,14 @@ Este módulo se encarga de ofrecer una experiencia **intuitiva y responsiva**, p
 
 ---
 
-## 📖 Contexto
-
-El frontend de Legumi está desarrollado en **Flutter**, lo que garantiza:
-- Compatibilidad multiplataforma (Android, iOS, Web).
-- Interfaz moderna y adaptable a distintos dispositivos.
-- Integración directa con el backend y modelos de detección.
-- Flujo amigable para agricultores, investigadores y estudiantes.
-
----
-
-## 🚀 Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - **Flutter** – Framework principal para desarrollo multiplataforma.
 - **Dart** – Lenguaje de programación base.
 
 ---
 
-## ⚙️ Instalación y ejecución
+## Instalación y ejecución
 
 ### Requisitos previos
 - Flutter SDK >= 3.x
