@@ -1,3 +1,5 @@
+![Logo](https://raw.githubusercontent.com/mafeorozco/legumi-frontend/main/WhatsApp%20Image%202026-04-22%20at%209.17.32%20PM.jpeg)
+
 # 🍅 Legumi Frontend
 
 Esta es la interfaz móvil y web del proyecto **Legumi**, una aplicación diseñada para el **monitoreo y detección de plagas y enfermedades en plantas de tomate cherry** mediante visión artificial y datasets especializados.  
