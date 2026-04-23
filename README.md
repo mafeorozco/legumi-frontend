@@ -1,19 +1,45 @@
-# legumi
+# 🍅 Legumi Frontend
 
-Comando para instalar las dependencias flutter pub get
+Esta es la interfaz móvil y web del proyecto **Legumi**, una aplicación diseñada para el **monitoreo y detección de plagas y enfermedades en plantas de tomate cherry** mediante visión artificial y datasets especializados.  
+Este módulo se encarga de ofrecer una experiencia **intuitiva y responsiva**, permitiendo a los usuarios capturar imágenes, visualizar analisis y gestionar información de manera sencilla.
 
+---
 
-A new Flutter project.
+## 📖 Contexto
 
-## Getting Started
+El frontend de Legumi está desarrollado en **Flutter**, lo que garantiza:
+- Compatibilidad multiplataforma (Android, iOS, Web).
+- Interfaz moderna y adaptable a distintos dispositivos.
+- Integración directa con el backend y modelos de detección.
+- Flujo amigable para agricultores, investigadores y estudiantes.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Tecnologías utilizadas
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Flutter** – Framework principal para desarrollo multiplataforma.
+- **Dart** – Lenguaje de programación base.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## ⚙️ Instalación y ejecución
+
+### Requisitos previos
+- Flutter SDK >= 3.x
+- Dart >= 2.x
+- Android Studio o VS Code con extensiones de Flutter
+
+### Pasos
+```bash
+# Clonar el repositorio
+git clone https://github.com/mafeorozco/legumi-frontend.git
+
+# Acceder al directorio
+cd legumi-frontend
+
+# Instalar dependencias
+flutter pub get
+
+# Ejecutar en modo desarrollo
+flutter run
+
