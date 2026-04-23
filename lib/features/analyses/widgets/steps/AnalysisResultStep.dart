@@ -1,18 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:legumi/core/services/analyses_service.dart';
+import 'package:legumi/features/analyses/models/analysis_result.dart';
+
 
 class SendAnalysisStep extends StatefulWidget {
   final String imagePath;
-  final VoidCallback? onSuccess;
-  // final int greenhouseId;
+  final ValueChanged<AnalysisResult> onSuccess;
 
-  const SendAnalysisStep({
-    super.key,
-    required this.imagePath,
-    this.onSuccess
-    // required this.greenhouseId,
-  });
+  const SendAnalysisStep({super.key, required this.imagePath, required this.onSuccess});
 
   @override
   State<SendAnalysisStep> createState() => _SendAnalysisStepState();
@@ -25,6 +21,7 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
   bool _isLoading = false;
   bool _isSuccess = false;
   String? _errorMessage;
+  AnalysisResult? _analysisResult;
   Map<String, dynamic>? _result;
 
   @override
@@ -39,23 +36,23 @@ class _SendAnalysisStepState extends State<SendAnalysisStep> {
       _errorMessage = null;
     });
 
-    await Future.delayed(const Duration(seconds: 1));
-    widget.onSuccess?.call();
-
     try {
       final result = await _service.createAnalysis(
-        // greenhouseId: widget.greenhouseId,
         imageFile: File(widget.imagePath),
       );
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _isSuccess = true;
         _result = result;
       });
 
-
+      await Future.delayed(const Duration(seconds: 1));
+      final response = AnalysisResult.fromJson(result);
+      widget.onSuccess(response);
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();

@@ -13,16 +13,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailController    = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _authService        = AuthService();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _auth = AuthService();
+
   bool _obscure = true;
   bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    // Configurar callback de sesión expirada
+    // Si el token expira, regresar al login
     ApiClient().onSessionExpired = () {
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -35,29 +36,25 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
+  // Envía las credenciales al servidor
   Future<void> _login() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos')),
-      );
+    final email = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnack('Completa todos los campos');
       return;
     }
 
     setState(() => _loading = true);
-
-    final ok = await _authService.login(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
-
-    setState(() => _loading = false);
-
+    final ok = await _auth.login(email, password);
     if (!mounted) return;
+    setState(() => _loading = false);
 
     if (ok) {
       Navigator.pushReplacement(
@@ -65,174 +62,351 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => const InicioScreen()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario o contraseña incorrectos')),
-      );
+      _showSnack('Usuario o contraseña incorrectos');
     }
   }
 
+  void _showSnack(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 700;
     return Scaffold(
-      body: Row(children: [
-        // Panel izquierdo — verde decorativo (sin cambios)
+      backgroundColor: AppColors.background,
+      body: isMobile ? _buildMobile() : _buildDesktop(),
+    );
+  }
+
+  //  Vista móvil: cabecera + formulario en columna 
+  Widget _buildMobile() {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Cabecera verde con logo y nombre de la app
+            Container(
+              color: const Color(0xFF16372C),
+              padding: const EdgeInsets.fromLTRB(24, 52, 24, 40),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFADD1A5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.eco_rounded,
+                      color: Colors.white,
+                      size: 38,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Legumi',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Control inteligente de plagas',
+                    style: TextStyle(color: AppColors.green100, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+
+            // Formulario de login
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Bienvenido de nuevo',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Ingresa tus credenciales para continuar',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  _buildFields(),
+                  const SizedBox(height: 28),
+                  _buildPrimaryButton(),
+                  const SizedBox(height: 16),
+                  _buildOrDivider(),
+                  const SizedBox(height: 16),
+                  _buildSecondaryButton(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //  Vista escritorio: panel verde | panel formulario 
+  Widget _buildDesktop() {
+    return Row(
+      children: [
+        // Panel izquierdo — decorativo con beneficios
         Expanded(
           child: Container(
-            color: AppColors.green800,
+            color: const Color(0xFF16372C),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 90, height: 90,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
-                    color: AppColors.green600,
-                    borderRadius: BorderRadius.circular(24),
+                    color: const Color(0xFFADD1A5),
+                    borderRadius: BorderRadius.circular(26),
                   ),
-                  child: const Icon(Icons.eco_rounded,
-                    color: Colors.white, size: 48),
+                  child: const Icon(
+                    Icons.eco_rounded,
+                    color: Colors.white,
+                    size: 52,
+                  ),
                 ),
-                const SizedBox(height: 24),
-                const Text('Legumi',
-                  style: TextStyle(color: Colors.white, fontSize: 40,
-                    fontWeight: FontWeight.w800)),
-                const SizedBox(height: 12),
-                const Text('Control inteligente de plagas',
-                  style: TextStyle(color: AppColors.green100, fontSize: 16)),
-                const SizedBox(height: 48),
-                Container(
-                  width: 280,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.green600.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(16),
+                const SizedBox(height: 28),
+                const Text(
+                  'Legumi',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 44,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -1,
                   ),
-                  child: const Column(children: [
-                    _FeatureRow(icon: Icons.camera_alt_outlined,
-                      text: 'Detecta plagas con IA'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.home_work_outlined,
-                      text: 'Gestiona tus invernaderos'),
-                    SizedBox(height: 12),
-                    _FeatureRow(icon: Icons.bar_chart_outlined,
-                      text: 'Historial de análisis'),
-                  ]),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Control inteligente de plagas',
+                  style: TextStyle(color: AppColors.green100, fontSize: 16),
+                ),
+                const SizedBox(height: 52),
+                // Tarjeta con los 3 beneficios principales
+                Container(
+                  width: 300,
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFADD1A5).withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: const Column(
+                    children: [
+                      _FeatureRow(
+                        icon: Icons.camera_alt_outlined,
+                        text: 'Detecta plagas con IA',
+                      ),
+                      SizedBox(height: 14),
+                      _FeatureRow(
+                        icon: Icons.home_work_outlined,
+                        text: 'Gestiona tus invernaderos',
+                      ),
+                      SizedBox(height: 14),
+                      _FeatureRow(
+                        icon: Icons.bar_chart_outlined,
+                        text: 'Historial de análisis',
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
 
-        // Panel derecho — formulario (sin cambios visuales)
+        // Panel derecho — formulario centrado
         SizedBox(
-          width: 480,
+          width: 460,
           child: Container(
             color: AppColors.background,
-            padding: const EdgeInsets.symmetric(horizontal: 56),
+            padding: const EdgeInsets.symmetric(horizontal: 52),
             child: Center(
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Bienvenido de nuevo',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
+                    const Text(
+                      'Bienvenido de nuevo',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    const Text('Ingresa tus credenciales para continuar',
-                      style: TextStyle(fontSize: 14,
-                        color: AppColors.textSecondary)),
+                    const Text(
+                      'Ingresa tus credenciales para continuar',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                     const SizedBox(height: 36),
-
-                    const Text('Correo electrónico',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.mail_outline, size: 18,
-                          color: AppColors.textSecondary),
-                        hintText: 'correo@ejemplo.com',
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    const Text('Contraseña',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscure,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock_outline, size: 18,
-                          color: AppColors.textSecondary),
-                        hintText: '••••••••',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscure
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                            size: 18, color: AppColors.textSecondary),
-                          onPressed: () =>
-                            setState(() => _obscure = !_obscure),
-                        ),
-                      ),
-                    ),
+                    _buildFields(),
                     const SizedBox(height: 32),
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _loading ? null : _login,
-                        child: _loading
-                          ? const SizedBox(height: 18, width: 18,
-                              child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                          : const Text('Ingresar'),
-                      ),
-                    ),
+                    _buildPrimaryButton(),
                     const SizedBox(height: 16),
-
-                    Row(children: const [
-                      Expanded(child: Divider(color: AppColors.border)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('o', style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 13))),
-                      Expanded(child: Divider(color: AppColors.border)),
-                    ]),
+                    _buildOrDivider(),
                     const SizedBox(height: 16),
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.push(context,
-                          MaterialPageRoute(
-                            builder: (_) => const SingUpPage())),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.green600,
-                          side: const BorderSide(color: AppColors.green600),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        child: const Text('Crear cuenta',
-                          style: TextStyle(fontSize: 14,
-                            fontWeight: FontWeight.w600)),
-                      ),
-                    ),
+                    _buildSecondaryButton(),
                   ],
                 ),
               ),
             ),
           ),
         ),
-      ]),
+      ],
     );
   }
+
+  //  Campos email y contraseña 
+  Widget _buildFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _Label('Correo electrónico'),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            prefixIcon: Icon(
+              Icons.mail_outline,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+            hintText: 'correo@ejemplo.com',
+          ),
+        ),
+        const SizedBox(height: 18),
+        const _Label('Contraseña'),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _passwordCtrl,
+          obscureText: _obscure,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _login(),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.lock_outline,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+            hintText: '••••••••',
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  //  Botón principal: Ingresar 
+  Widget _buildPrimaryButton() => SizedBox(
+    height: 50,
+    child: ElevatedButton(
+      onPressed: _loading ? null : _login,
+      child: _loading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : const Text(
+              'Ingresar',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+    ),
+  );
+
+  //  Separador con "o" 
+  Widget _buildOrDivider() => const Row(
+    children: [
+      Expanded(child: Divider(color: AppColors.border)),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Text(
+          'o',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        ),
+      ),
+      Expanded(child: Divider(color: AppColors.border)),
+    ],
+  );
+
+  //  Botón secundario: Crear cuenta 
+  Widget _buildSecondaryButton() => SizedBox(
+    height: 50,
+    child: OutlinedButton(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SingUpPage()),
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFFADD1A5),
+        side: const BorderSide(color: const Color(0xFFADD1A5)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: const Text(
+        'Crear cuenta',
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
+    ),
+  );
 }
 
+//  Etiqueta pequeña sobre un campo 
+class _Label extends StatelessWidget {
+  final String text;
+  const _Label(this.text);
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: const TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      color: AppColors.textSecondary,
+    ),
+  );
+}
+
+//  Fila de beneficio en el panel verde 
 class _FeatureRow extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -240,11 +414,27 @@ class _FeatureRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Icon(icon, color: AppColors.green100, size: 18),
-      const SizedBox(width: 12),
-      Text(text,
-        style: const TextStyle(color: Colors.white, fontSize: 14)),
-    ]);
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.green100, size: 17),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 }

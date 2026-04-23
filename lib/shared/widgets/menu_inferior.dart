@@ -1,62 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:legumi/core/theme/app_theme.dart';
 
+// Menú inferior para móvil — se usa en pantallas que no son InicioScreen
 class MenuInferior extends StatelessWidget {
-  const MenuInferior({super.key});
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const MenuInferior({
+    super.key,
+    this.currentIndex = 0,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + 10,
-      ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavItem(Icons.home_outlined, 'Inicio'),
-          _buildNavItem(Icons.crop_free_outlined, 'Escanear'),
-          _buildNavItem(Icons.history_outlined, 'Historial'),
-        ],
-      ),
-    );
-  }
+    // Solo se muestra en móvil — en escritorio el sidebar reemplaza este menú
+    final isMobile = MediaQuery.of(context).size.width < 700;
+    if (!isMobile) return const SizedBox.shrink();
 
-  Widget _buildNavItem(IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: label == 'Escanear' ? const Color(0xFF4CAF50) : Colors.transparent,
-            shape: label == 'Escanear' ? BoxShape.circle : BoxShape.rectangle,
-          ),
-          child: Icon(
-            icon,
-            size: 24,
-            color: label == 'Escanear' ? Colors.white : const Color(0xFF4CAF50),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: onTap,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppColors.surface,
+          selectedItemColor: AppColors.green600,
+          unselectedItemColor: AppColors.textSecondary,
+          selectedFontSize: 11,
+          unselectedFontSize: 11,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Inicio',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.camera_alt_outlined),
+              activeIcon: Icon(Icons.camera_alt),
+              label: 'Escanear',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_work_outlined),
+              activeIcon: Icon(Icons.home_work),
+              label: 'Invernaderos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              activeIcon: Icon(Icons.history),
+              label: 'Historial',
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF4CAF50),
-            fontWeight: FontWeight.normal,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
